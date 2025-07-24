@@ -1,24 +1,55 @@
-using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
 using System.Windows.Input;
 
 namespace BuggyTasks.ViewModels;
 
-public partial class NewTaskViewModel : ObservableObject
+public class NewTaskViewModel : INotifyPropertyChanged
 {
-    [ObservableProperty]
-    string newTaskTitle;
+    private string _newTaskTitle = string.Empty;
 
-    public ICommand AddNewTaskCommand { get; } 
+    public string NewTaskTitle
+    {
+        get => _newTaskTitle;
+        set
+        {
+            _newTaskTitle = value;
+            OnPropertyChanged();
+        }
+    }
+
+    public ICommand AddNewTaskCommand { get; }
 
     public NewTaskViewModel()
     {
-        AddNewTaskCommand = new RelayCommand(OnAddTask);
+        AddNewTaskCommand = new Command(async () => await OnAddTaskAsync());
     }
 
-    void OnAddTask()
+    async Task OnAddTaskAsync()
     {
-        // Simulate adding a task
+        if (string.IsNullOrWhiteSpace(NewTaskTitle))
+        {
+            await Application.Current.MainPage.DisplayAlert("Error", "Please enter a task title", "OK");
+            return;
+        }
+
+     
         Console.WriteLine($"Added task: {NewTaskTitle}");
+        
+      
+        await Application.Current.MainPage.DisplayAlert("Success", $"Task '{NewTaskTitle}' added successfully!", "OK");
+        
+       
+        NewTaskTitle = string.Empty;
+        
+      
+        await Shell.Current.GoToAsync("..");
+    }
+
+    public event PropertyChangedEventHandler? PropertyChanged;
+
+    protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+    {
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 }

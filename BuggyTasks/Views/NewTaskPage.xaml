@@ -1,12 +1,14 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:vm="clr-namespace:BuggyTasks.ViewModels"
-             x:Class="BuggyTasks.Views.NewTaskPage">
+             x:Class="BuggyTasks.Views.NewTaskPage"
+             Title="Add New Task">
     <ContentPage.BindingContext>
         <vm:NewTaskViewModel />
     </ContentPage.BindingContext>
-    <VerticalStackLayout>
+    <VerticalStackLayout Padding="30">
         <Entry Placeholder="Enter task" Text="{Binding NewTaskTitle}" />
-        <Button Text="Add Task" Command="{Binding AddTaskCommand}" />
+        <Button Text="Add Task" Command="{Binding AddNewTaskCommand}" />
+        <Button Text="Back" Clicked="OnBackClicked" />
     </VerticalStackLayout>
 </ContentPage>

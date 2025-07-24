@@ -1,0 +1,15 @@
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="BuggyTasks.Views.DeviceInfoPage"
+             Title="Device Information">
+    <ScrollView Padding="30">
+        <VerticalStackLayout>
+            <Label Text="Device Information" FontSize="24" FontAttributes="Bold" />
+            <Label x:Name="ModelLabel" Text="Model: Loading..." />
+            <Label x:Name="PlatformLabel" Text="Platform: Loading..." />
+            <Label x:Name="VersionLabel" Text="Version: Loading..." />
+            <Label x:Name="ManufacturerLabel" Text="Manufacturer: Loading..." />
+            <Button Text="Back" Clicked="OnBackClicked" />
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>
