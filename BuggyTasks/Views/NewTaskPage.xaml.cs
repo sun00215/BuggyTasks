@@ -1,18 +1,14 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 using Microsoft.Maui.Controls;
+using BuggyTasks.ViewModels;
 
 namespace BuggyTasks.Views;
 
 public partial class NewTaskPage : ContentPage
 {
-    public NewTaskPage()
+    public NewTaskPage(NewTaskViewModel viewModel)
     {
         InitializeComponent();
+        BindingContext = viewModel;
     }
 
     async void OnBackClicked(object sender, EventArgs e)

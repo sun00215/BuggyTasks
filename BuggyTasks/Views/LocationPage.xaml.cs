@@ -3,7 +3,7 @@ using Microsoft.Maui.Devices.Sensors;
 
 namespace BuggyTasks.Views;
 
-public partial class LocationPage : ContentPage
+public partial class LocationPage: ContentPage
 {
     public LocationPage()
     {
@@ -16,10 +16,45 @@ public partial class LocationPage : ContentPage
         await GetLastKnownLocation();
     }
 
+    async Task<bool> CheckAndRequestLocationPermission()
+    {
+        try
+        {
+            var status = await Permissions.CheckStatusAsync<Permissions.LocationWhenInUse>();
+
+            if (status == PermissionStatus.Granted)
+                return true;
+
+            if (status == PermissionStatus.Denied && DeviceInfo.Platform == DevicePlatform.iOS)
+            {
+              
+                StatusLabel.Text = "Location permission denied. Please enable in Settings.";
+                return false;
+            }
+
+            status = await Permissions.RequestAsync<Permissions.LocationWhenInUse>();
+            return status == PermissionStatus.Granted;
+        }
+        catch (Exception ex)
+        {
+            StatusLabel.Text = $"Permission error: {ex.Message}";
+            return false;
+        }
+    }
+
     async Task GetLastKnownLocation()
     {
         try
         {
+            StatusLabel.Text = "Checking permissions...";
+            
+            var hasPermission = await CheckAndRequestLocationPermission();
+            if (!hasPermission)
+            {
+                StatusLabel.Text = "Location permission required but not granted.";
+                return;
+            }
+
             StatusLabel.Text = "Getting last known location...";
             var location = await Geolocation.GetLastKnownLocationAsync();
             
@@ -32,7 +67,7 @@ public partial class LocationPage : ContentPage
             }
             else
             {
-                StatusLabel.Text = "No last known location available";
+                StatusLabel.Text = "No last known location available. Try getting current location.";
                 LatitudeLabel.Text = "Latitude: --";
                 LongitudeLabel.Text = "Longitude: --";
                 AccuracyLabel.Text = "Accuracy: --";
@@ -48,6 +83,15 @@ public partial class LocationPage : ContentPage
     {
         try
         {
+            StatusLabel.Text = "Checking permissions...";
+            
+            var hasPermission = await CheckAndRequestLocationPermission();
+            if (!hasPermission)
+            {
+                StatusLabel.Text = "Location permission required but not granted.";
+                return;
+            }
+
             StatusLabel.Text = "Getting current location...";
             
             var request = new GeolocationRequest
@@ -56,7 +100,8 @@ public partial class LocationPage : ContentPage
                 Timeout = TimeSpan.FromSeconds(10)
             };
 
-            var location = await Geolocation.GetLocationAsync(request);
+            var cts = new CancellationTokenSource(TimeSpan.FromSeconds(10));
+            var location = await Geolocation.GetLocationAsync(request, cts.Token);
             
             if (location != null)
             {
@@ -69,6 +114,22 @@ public partial class LocationPage : ContentPage
             {
                 StatusLabel.Text = "Unable to get current location";
             }
+        }
+        catch (OperationCanceledException)
+        {
+            StatusLabel.Text = "Location request timed out";
+        }
+        catch (FeatureNotSupportedException)
+        {
+            StatusLabel.Text = "Location is not supported on this device";
+        }
+        catch (FeatureNotEnabledException)
+        {
+            StatusLabel.Text = "Location is not enabled on this device";
+        }
+        catch (PermissionException)
+        {
+            StatusLabel.Text = "Location permission denied";
         }
         catch (Exception ex)
         {

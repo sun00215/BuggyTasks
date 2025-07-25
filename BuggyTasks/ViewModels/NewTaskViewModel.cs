@@ -1,11 +1,13 @@
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
+using BuggyTasks.Services;
 
 namespace BuggyTasks.ViewModels;
 
-public class NewTaskViewModel : INotifyPropertyChanged
+public class NewTaskViewModel: INotifyPropertyChanged
 {
+    private readonly ITaskService _taskService;
     private string _newTaskTitle = string.Empty;
 
     public string NewTaskTitle
@@ -20,8 +22,9 @@ public class NewTaskViewModel : INotifyPropertyChanged
 
     public ICommand AddNewTaskCommand { get; }
 
-    public NewTaskViewModel()
+    public NewTaskViewModel(ITaskService taskService)
     {
+        _taskService = taskService;
         AddNewTaskCommand = new Command(async () => await OnAddTaskAsync());
     }
 
@@ -33,16 +36,16 @@ public class NewTaskViewModel : INotifyPropertyChanged
             return;
         }
 
-     
-        Console.WriteLine($"Added task: {NewTaskTitle}");
+       
+        _taskService.AddTask(NewTaskTitle);
         
-      
+       
         await Application.Current.MainPage.DisplayAlert("Success", $"Task '{NewTaskTitle}' added successfully!", "OK");
         
        
         NewTaskTitle = string.Empty;
         
-      
+    
         await Shell.Current.GoToAsync("..");
     }
 

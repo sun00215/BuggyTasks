@@ -1,23 +1,19 @@
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using BuggyTasks.Models;
+using BuggyTasks.Services;
 
 namespace BuggyTasks.ViewModels;
 
 public class TaskListViewModel : INotifyPropertyChanged
 {
-    public ObservableCollection<TaskItem> Tasks { get; set; }
+    private readonly ITaskService _taskService;
+    
+    public ObservableCollection<TaskItem> Tasks => _taskService.Tasks;
 
-    public TaskListViewModel()
+    public TaskListViewModel(ITaskService taskService)
     {
-        Tasks = new ObservableCollection<TaskItem>
-        {
-            new TaskItem { Title = "Test Task 1" },
-            new TaskItem { Title = "Test Task 2" },
-            new TaskItem { Title = "Buy groceries" },
-            new TaskItem { Title = "Complete project" },
-            new TaskItem { Title = "Call dentist" }
-        };
+        _taskService = taskService;
     }
 
     public event PropertyChangedEventHandler? PropertyChanged;
